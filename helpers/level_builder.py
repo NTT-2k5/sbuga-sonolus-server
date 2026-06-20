@@ -288,9 +288,14 @@ def get_leveldata_url(music_id: int, difficulty: str) -> str:
 def _srl(
     url: str, music_id: int, asset_suffix: str, bundle_key: str | None = None
 ) -> SRL:
+    import hashlib
+
     key = bundle_key or asset_suffix
     h = _bundle_hashes.get(str(music_id), {}).get(key)
-    return SRL(hash=f"{h}-{asset_suffix}" if h else None, url=url)
+    if not h:
+        return SRL(url=url)
+    sha1 = hashlib.sha1(f"{h}-{asset_suffix}".encode()).hexdigest()
+    return SRL(hash=sha1, url=url)
 
 
 def invalidate_chart_cache():
