@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pyyaml
+aiohttp
+redis
+pydantic
+python-multipart
+git+https://github.com/UntitledCharts/sonolus-level-converters
+rapidfuzz
+cutlet
+unidic

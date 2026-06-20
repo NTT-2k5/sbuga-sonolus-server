@@ -1,0 +1,11 @@
+{
+    "item_not_found": "{item} item \"{name}\" tidak ditemukan.",
+    "server_description": "Mainkan プロジェクトセカイ カラフルステージ！ feat. 初音ミク di Sonolus dengan server Sbuga!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "show_spoiler_charts_desc": "Tampilkan chart yang belum dipublikasikan (tanggal publikasi di masa depan).",
+    "unknown_error": "Error tidak diketahui!",
+    "invalid_page_plural": "Halaman {page} tidak ada! Batasnya adalah {max_page} halaman.",
+    "not_found": "Tidak ditemukan.",
+    "show_spoiler_charts": "Tampilkan Chart Spoiler",
+    "invalid_page_singular": "Halaman {page} tidak ada! Batasnya adalah {max_page} halaman.",
+    "items_not_found": "Tidak dapat menemukan {item}."
+}

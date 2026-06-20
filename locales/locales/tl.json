@@ -1,0 +1,11 @@
+{
+    "item_not_found": "{item} item na \"{name}\" ay hindi nahanap.",
+    "server_description": "Laruin ang プロジェクトセカイ カラフルステージ！ feat. 初音ミク sa Sonolus gamit ang server ng Sbuga!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "show_spoiler_charts_desc": "Ipakita ang mga chart na hindi pa na-publish (petsa ng paglalathala sa hinaharap).",
+    "unknown_error": "Hindi kilalang error!",
+    "invalid_page_plural": "Ang page {page} ay wala! Mayroong {max_page} na mga pahina.",
+    "not_found": "Hindi nahanap.",
+    "show_spoiler_charts": "Ipakita ang Spoiler Charts",
+    "invalid_page_singular": "Ang page {page} ay wala! Mayroong {max_page} na pahina.",
+    "items_not_found": "Hindi mahanap ang anumang {item}."
+}

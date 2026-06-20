@@ -1,0 +1,11 @@
+{
+    "item_not_found": "{item} предмет \"{name}\" не найден.",
+    "server_description": "Играйте в プロジェクトセカイ カラフルステージ！ feat. 初音ミク в Sonolus на сервере Sbuga!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "show_spoiler_charts_desc": "Показать чарты, которые ещё не опубликованы (дата публикации в будущем).",
+    "unknown_error": "Неизвестная ошибка!",
+    "invalid_page_plural": "Страница {page} не существует! Всего есть {max_page} страниц.",
+    "not_found": "Не найдено.",
+    "show_spoiler_charts": "Показать спойлерные чарты",
+    "invalid_page_singular": "Страница {page} не существует! Всего есть {max_page} страница.",
+    "items_not_found": "Не удалось найти любой {item}."
+}

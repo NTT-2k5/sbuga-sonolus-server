@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Disk caches
+cache/
+
+# Sensitive configs
+config.yml
+config.local.yml
+*.sql

@@ -1,0 +1,11 @@
+{
+    "item_not_found": "{item} \"{name}\"はありません。",
+    "server_description": "Sbugaのソノラスサーバーでプロジェクトセカイ カラフルステージ！ feat. 初音ミクをSonolusでプレイしよう！\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "show_spoiler_charts_desc": "まだ公開されていない譜面（公開日が未来）を表示します。",
+    "unknown_error": "エラーが発生しました。",
+    "invalid_page_plural": "ページ{page}が存在しません。 {max_page}ページまであります。",
+    "not_found": "存在しません。",
+    "show_spoiler_charts": "ネタバレ譜面を表示",
+    "invalid_page_singular": "ページ{page}が存在しません。 {max_page}ページまであります。",
+    "items_not_found": "{item}はありません。"
+}

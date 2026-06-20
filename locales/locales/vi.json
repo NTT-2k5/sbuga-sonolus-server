@@ -1,0 +1,11 @@
+{
+    "item_not_found": "Không tìm thấy mục {item} \"{name}\".",
+    "server_description": "Chơi プロジェクトセカイ カラフルステージ！ feat. 初音ミク trên Sonolus với máy chủ của Sbuga!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "show_spoiler_charts_desc": "Hiển thị các chart chưa được công bố (ngày công bố trong tương lai).",
+    "unknown_error": "Lỗi không xác định!",
+    "invalid_page_plural": "Trang {page} không tồn tại! Có tổng cộng {max_page} trang.",
+    "not_found": "Không tìm thấy.",
+    "show_spoiler_charts": "Hiển thị Chart Spoiler",
+    "invalid_page_singular": "Trang {page} không tồn tại! Có tổng cộng {max_page} trang.",
+    "items_not_found": "Không tìm thấy bất kỳ {item} nào."
+}

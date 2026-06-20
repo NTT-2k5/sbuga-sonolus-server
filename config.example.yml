@@ -1,0 +1,35 @@
+server:
+  port: 39039
+  data-worker-port: 39042
+  base-url: "https://sonolus.sbuga.com"
+  force-https: true
+  debug: false
+
+sonolus:
+  required-client-version: "1.1.2"
+  items-per-page:
+    default: 10
+  name: "Sbuga"
+
+api:
+  url: "https://api.sbuga.com"
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  db: 1
+
+s3:
+  base-url: "https://your-r2-public-url.example.com"
+  endpoint: "https://your-account-id.r2.cloudflarestorage.com"
+  bucket-name: "sbuga-sonolus"
+  access-key-id: "your-access-key"
+  secret-access-key: "your-secret-key"
+  location: "auto"
+
+psql:
+  host: "127.0.0.1"
+  user: "sbuga"
+  database: "sbuga_sonolus"
+  port: 5432
+  password: "your-password"
