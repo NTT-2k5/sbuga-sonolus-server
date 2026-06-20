@@ -25,6 +25,7 @@ _music_data: dict[str, list[Music]] = {}
 _last_version_check: float = 0
 _known_version: str = ""
 _VERSION_CHECK_INTERVAL = 5
+_VERSION_CHECK_INTERVAL_NO_DATA = 2
 
 
 def make_level_id(music_id: int, vocal_id: int, difficulty: str) -> str:
@@ -124,7 +125,10 @@ async def fetch_music_data(api: SbugaAPI) -> dict[str, list[Music]]:
     global _last_version_check
 
     now = time.time()
-    if now - _last_version_check < _VERSION_CHECK_INTERVAL:
+    interval = (
+        _VERSION_CHECK_INTERVAL if _music_data else _VERSION_CHECK_INTERVAL_NO_DATA
+    )
+    if now - _last_version_check < interval:
         return _music_data or {"en": [], "jp": []}
 
     _last_version_check = now
