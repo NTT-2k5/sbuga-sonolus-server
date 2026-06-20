@@ -316,16 +316,14 @@ def _get_all_title_variants(
 
 def build_level_description(
     music: Music,
-    vocal: MusicVocal,
     combo: int,
     duration: float,
     music_data: dict[str, list[Music]] | None = None,
 ) -> str:
     lines = []
 
-    artist = get_vocal_artist(vocal, music)
-    if artist:
-        lines.append(f"#ARTISTS:#SEPARATOR_COLON:{artist}")
+    if music.artist:
+        lines.append(f"#ARTISTS:#SEPARATOR_COLON:{music.artist.name}")
     if music.lyricist:
         lines.append(f"#LYRICIST:#SEPARATOR_COLON:{music.lyricist}")
     if music.composer:

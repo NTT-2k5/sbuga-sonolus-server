@@ -87,7 +87,6 @@ async def main(request: SonolusRequest, item_name: str):
 
     description = build_level_description(
         music=music,
-        vocal=vocal,
         combo=chart_info["combo"],
         duration=chart_info["duration"],
         music_data=music_data,
@@ -127,16 +126,21 @@ async def main(request: SonolusRequest, item_name: str):
         )
         other_ver_levels.append(ov_level)
 
-    if other_diff_levels or other_ver_levels:
-        section_title = locale.other_section_title(
-            vocals=len(other_ver_levels),
-            difficulties=len(other_diff_levels),
-        )
+    if other_diff_levels:
         sections.append(
             LevelItemSection(
-                title=section_title,
+                title="#OTHER_DIFFICULTIES",
                 icon="level",
-                items=other_diff_levels + other_ver_levels,
+                items=other_diff_levels,
+            )
+        )
+
+    if other_ver_levels:
+        sections.append(
+            LevelItemSection(
+                title="#OTHER_VERSIONS",
+                icon="level",
+                items=other_ver_levels,
             )
         )
 
