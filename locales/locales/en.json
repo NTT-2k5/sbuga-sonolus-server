@@ -17,5 +17,7 @@
     "other_1d": "1 Other Difficulty",
     "other_nd": "{difficulties} Other Difficulties",
     "spoiler": "Spoiler",
-    "data_loading": "Please retry in a few seconds, updating data."
+    "data_loading": "Please retry in a few seconds, updating data.",
+    "songs_singular": "1 song",
+    "songs_plural": "{count} songs"
 }

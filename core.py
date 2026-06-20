@@ -37,6 +37,7 @@ class SonolusFastAPI(FastAPI):
         self.repository = repo
 
         self.exception_handlers.setdefault(HTTPException, self.http_exception_handler)
+        self.exception_handlers.setdefault(Exception, self.general_exception_handler)
 
         self.api: SbugaAPI
 
@@ -53,17 +54,31 @@ class SonolusFastAPI(FastAPI):
         )
 
     async def http_exception_handler(self, request: Request, exc: HTTPException):
-        if exc.status_code < 500:
+        if exc.status_code != 500:
             return JSONResponse(
                 content={"message": exc.detail}, status_code=exc.status_code
             )
         else:
+            import traceback
+
             print(
                 "-" * 100
                 + f"\nerror 500: {request.method} {str(request.url)}\n"
+                + traceback.format_exc()
                 + "-" * 100
             )
             return JSONResponse(content={}, status_code=exc.status_code)
+
+    async def general_exception_handler(self, request: Request, exc: Exception):
+        import traceback
+
+        print(
+            "-" * 100
+            + f"\nerror 500: {request.method} {str(request.url)}\n"
+            + traceback.format_exc()
+            + "-" * 100
+        )
+        return JSONResponse(content={}, status_code=500)
 
     def include_router(self, router, *args, **kwargs):
         for route in router.routes:

@@ -1,12 +1,11 @@
-import random
-
 from fastapi import APIRouter, HTTPException, status
 
 from core import SonolusRequest
 from helpers.data_compilers import compile_engines_list
 from helpers.level_builder import fetch_music_data, get_merged_musics, has_music_data
-from helpers.playlist_builder import build_playlist_item
-from helpers.models.sonolus.item_section import PlaylistItemSection
+from helpers.models.api.music import Music
+from helpers.playlist_builder import build_collaboration_post, sort_collab_groups
+from helpers.models.sonolus.item_section import PostItemSection
 from helpers.models.sonolus.options import ServerForm, ServerTextOption
 from helpers.models.sonolus.response import ServerItemInfo
 
@@ -14,7 +13,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=ServerItemInfo)
-async def main(request: SonolusRequest):
+async def main(request: SonolusRequest, type: str = ""):
     locale = request.state.loc
     localization = request.state.localization
     api = request.app.api
@@ -29,58 +28,44 @@ async def main(request: SonolusRequest):
     musics = get_merged_musics(
         music_data, request.state.show_spoilers, request.state.localization
     )
-    engines = await request.app.run_blocking(compile_engines_list, source, localization)
 
-    if not engines or not musics:
-        return ServerItemInfo(sections=[], banner=None)
+    collab_musics = [
+        m
+        for m in musics
+        if m.collaboration
+        and m.collaboration_id is not None
+        and m.vocals
+        and m.difficulties
+    ]
+    collab_groups: dict[int, list[Music]] = {}
+    for m in collab_musics:
+        collab_groups.setdefault(m.collaboration_id, []).append(m)
 
-    engine = engines[0]
-
-    newest_musics = sorted(musics, key=lambda m: m.published_at, reverse=True)[:5]
-    newest = []
-    for music in newest_musics:
-        if not music.vocals or not music.difficulties:
-            continue
-        playlist = await build_playlist_item(
-            music=music,
-            engine=engine,
+    posts = []
+    for cid in sorted(
+        collab_groups.keys(),
+        key=lambda k: max(m.published_at for m in collab_groups[k]),
+        reverse=True,
+    ):
+        songs = collab_groups[cid]
+        cname = songs[0].collaboration
+        post = build_collaboration_post(
+            collab_name=cname,
+            collab_id=cid,
+            songs=songs,
             source=source,
-            localization=localization,
-            music_data=music_data,
             spoiler_tag=locale.spoiler,
+            songs_count_str=locale.songs_count(len(songs)),
         )
-        newest.append(playlist)
-
-    random_musics = random.sample(musics, min(5, len(musics)))
-    random_playlists = []
-    for music in random_musics:
-        if not music.vocals or not music.difficulties:
-            continue
-        playlist = await build_playlist_item(
-            music=music,
-            engine=engine,
-            source=source,
-            localization=localization,
-            music_data=music_data,
-            spoiler_tag=locale.spoiler,
-        )
-        random_playlists.append(playlist)
+        posts.append(post)
 
     sections = []
-    if newest:
+    if posts:
         sections.append(
-            PlaylistItemSection(
-                title="#NEWEST",
-                icon="clock",
-                items=newest,
-            )
-        )
-    if random_playlists:
-        sections.append(
-            PlaylistItemSection(
-                title="#RANDOM",
-                icon="shuffle",
-                items=random_playlists,
+            PostItemSection(
+                title="#COLLABORATION",
+                icon="star",
+                items=posts,
             )
         )
 

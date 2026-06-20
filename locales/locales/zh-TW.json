@@ -17,5 +17,7 @@
     "other_1d": "1個其他難度",
     "other_nd": "{difficulties}個其他難度",
     "spoiler": "劇透",
-    "data_loading": "請稍後再試，正在更新資料。"
+    "data_loading": "請稍後再試，正在更新資料。",
+    "songs_singular": "1首歌曲",
+    "songs_plural": "{count}首歌曲"
 }

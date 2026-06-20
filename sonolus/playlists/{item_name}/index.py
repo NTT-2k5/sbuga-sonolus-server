@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from core import SonolusRequest
 from helpers.data_compilers import compile_engines_list
-from helpers.level_builder import fetch_music_data, get_merged_musics
+from helpers.level_builder import fetch_music_data, get_merged_musics, has_music_data
 from helpers.playlist_builder import (
     parse_playlist_id,
     build_playlist_item,
@@ -20,11 +20,9 @@ async def main(request: SonolusRequest, item_name: str):
     source = request.app.base_url
     localization = request.state.localization
 
-    music_id = parse_playlist_id(item_name)
-    if music_id is None:
+    if not has_music_data():
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=locale.not_found,
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=locale.data_loading
         )
 
     music_data = await fetch_music_data(api)
@@ -41,6 +39,13 @@ async def main(request: SonolusRequest, item_name: str):
 
     engine = engines[0]
 
+    music_id = parse_playlist_id(item_name)
+    if music_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=locale.not_found,
+        )
+
     music = next((m for m in musics if m.id == music_id), None)
     if not music or not music.vocals or not music.difficulties:
         raise HTTPException(
@@ -54,6 +59,7 @@ async def main(request: SonolusRequest, item_name: str):
         source=source,
         localization=localization,
         music_data=music_data,
+        spoiler_tag=locale.spoiler,
     )
 
     description = build_playlist_description(music, music_data=music_data)

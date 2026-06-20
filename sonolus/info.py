@@ -22,6 +22,12 @@ async def main(request: SonolusRequest):
     button_list = [
         ServerInfoItemButton(type="level"),
         ServerInfoItemButton(type="playlist"),
+        ServerInfoItemButton(
+            type="post",
+            title="#COLLABORATION",
+            icon="award",
+            infoType="collaboration",
+        ),
         ServerInfoItemButton(type="skin"),
         ServerInfoItemButton(type="effect"),
         ServerInfoItemButton(type="particle"),

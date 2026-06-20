@@ -56,6 +56,10 @@ class Loc:
     def data_loading(self) -> str:
         return self._get("data_loading")
 
+    def songs_count(self, count: int) -> str:
+        key = "songs_singular" if count == 1 else "songs_plural"
+        return self._get(key).format(count=count)
+
     def other_section_title(self, vocals: int, difficulties: int) -> str:
         if vocals and difficulties:
             v = "1v" if vocals == 1 else "nv"

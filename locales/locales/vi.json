@@ -17,5 +17,7 @@
     "other_1d": "1 Độ Khó Khác",
     "other_nd": "{difficulties} Độ Khó Khác",
     "spoiler": "Spoiler",
-    "data_loading": "Vui lòng thử lại sau vài giây, đang cập nhật dữ liệu."
+    "data_loading": "Vui lòng thử lại sau vài giây, đang cập nhật dữ liệu.",
+    "songs_singular": "1 bài hát",
+    "songs_plural": "{count} bài hát"
 }

@@ -87,6 +87,9 @@ async def _do_update():
                 return
             new_bundle_hashes = await resp.json()
 
+        if "en" not in raw or "jp" not in raw:
+            raise RuntimeError("data worker has no music data yet")
+
         new_music_data = {
             "en": [Music.model_validate(m) for m in raw["en"]],
             "jp": [Music.model_validate(m) for m in raw["jp"]],
@@ -201,14 +204,12 @@ def get_merged_musics(
                     music.collaboration = en_music.collaboration
             else:
                 music.game_characters = {
-                    cid: all_game_chars[cid]
+                    cid: all_game_chars.get(cid, music.game_characters[cid])
                     for cid in music.game_characters
-                    if cid in all_game_chars
                 }
                 music.outside_characters = {
-                    cid: all_outside_chars[cid]
+                    cid: all_outside_chars.get(cid, music.outside_characters[cid])
                     for cid in music.outside_characters
-                    if cid in all_outside_chars
                 }
                 if music.artist and music.artist.id in all_artists:
                     music.artist = all_artists[music.artist.id]

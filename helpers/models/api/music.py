@@ -75,6 +75,7 @@ class Music(BaseModel):
     background_v1_url: str = ""
     background_v3_url: str = ""
     collaboration: str | None = None
+    collaboration_id: int | None = None
     original_video: str | None = None
     difficulties: list[MusicDifficulty] = []
     vocals: list[MusicVocal] = []

@@ -45,7 +45,6 @@ async def main(
     engine = engines[0]
 
     music_map = {m.id: m for m in musics}
-
     if keywords.strip():
         matched_ids = fuzzy_search_playlists(keywords)
         musics = [music_map[mid] for mid in matched_ids if mid in music_map]
@@ -68,6 +67,7 @@ async def main(
             source=source,
             localization=localization,
             music_data=music_data,
+            spoiler_tag=locale.spoiler,
         )
         items.append(playlist)
 
