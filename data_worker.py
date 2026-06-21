@@ -34,6 +34,16 @@ ADD_FILE_HASH_SQL = """
 ALTER TABLE chart_data ADD COLUMN IF NOT EXISTS file_hash TEXT NOT NULL DEFAULT ''
 """
 
+CREATE_FILE_HASHES_SQL = """
+CREATE TABLE IF NOT EXISTS file_hashes (
+    music_id INT NOT NULL,
+    hash_key TEXT NOT NULL,
+    file_hash TEXT NOT NULL,
+    bundle_hash TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (music_id, hash_key)
+)
+"""
+
 _music_cache: dict[str, list[dict]] = {}
 _search_map_data: dict = {}
 _chart_info: dict[int, dict[str, dict]] = {}
@@ -166,6 +176,17 @@ async def _load_chart_info_from_db():
             ] = file_hash
     total = sum(len(d) for d in _chart_info.values())
     print(f"[DataWorker] loaded {total} chart infos from db")
+
+
+async def _load_file_hashes_from_db():
+    if not _db_pool:
+        return
+    async with _db_pool.acquire() as conn:
+        rows = await conn.fetch("SELECT music_id, hash_key, file_hash FROM file_hashes")
+    for row in rows:
+        mid_str = str(row["music_id"])
+        _file_hashes.setdefault(mid_str, {})[row["hash_key"]] = row["file_hash"]
+    print(f"[DataWorker] loaded {len(rows)} asset file hashes from db")
 
 
 # ---- music data + search maps ----
@@ -328,7 +349,17 @@ async def _check_and_update_charts():
         if not bundle_type:
             continue
         try:
-            music_id = int(parts[2].split("_")[0])
+            if bundle_type == "jacket":
+                # music/jacket/jacket_s_001 -> 1, music/jacket/jacket_s_001_v2 -> 1
+                import re
+
+                m = re.search(r"jacket_s_(\d+)", parts[2])
+                if not m:
+                    continue
+                music_id = int(m.group(1))
+            else:
+                # music/long/0001_01 -> 1
+                music_id = int(parts[2].split("_")[0])
         except (ValueError, IndexError):
             continue
         if music_id not in known_music_ids:
@@ -518,7 +549,7 @@ async def _check_and_update_charts():
 
 
 async def _hash_asset_files():
-    if not _music_cache:
+    if not _music_cache or not _db_pool:
         return
 
     from helpers.config_loader import get_config
@@ -529,45 +560,51 @@ async def _hash_asset_files():
     regions = [r for r in all_regions if r in supported]
     merged = _get_merged_multi(_music_cache, regions)
 
-    urls_to_hash: list[tuple[str, str, str]] = []  # (music_id_str, suffix, url)
-    for music in merged:
-        mid_str = str(music.id)
-        existing = _file_hashes.get(mid_str, {})
-        bundle_info = _bundle_hashes.get(mid_str, {})
+    # load stored bundle hashes from db to know what's already hashed
+    async with _db_pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT music_id, hash_key, bundle_hash FROM file_hashes"
+        )
+    db_bundle_markers: dict[tuple[int, str], str] = {}
+    for r in rows:
+        db_bundle_markers[(r["music_id"], r["hash_key"])] = r["bundle_hash"]
 
-        # only hash if we have bundle info and haven't hashed yet for this bundle
+    # (music_id, hash_key, url, bundle_hash_for_this_key)
+    urls_to_hash: list[tuple[int, str, str, str]] = []
+    for music in merged:
+        bundle_info = _bundle_hashes.get(str(music.id), {})
         if not bundle_info:
             continue
 
         jacket_bh = bundle_info.get("jacket", "")
-        stored_jacket_bh = existing.get("_jacket_bh", "")
-        if jacket_bh and jacket_bh != stored_jacket_bh:
+        if jacket_bh and db_bundle_markers.get((music.id, "jacket")) != jacket_bh:
             if music.jacket_url:
-                urls_to_hash.append((mid_str, "jacket", music.jacket_url))
+                urls_to_hash.append((music.id, "jacket", music.jacket_url, jacket_bh))
             if music.background_v1_url:
-                urls_to_hash.append((mid_str, "bgv1", music.background_v1_url))
+                urls_to_hash.append(
+                    (music.id, "bgv1", music.background_v1_url, jacket_bh)
+                )
             if music.background_v3_url:
-                urls_to_hash.append((mid_str, "bgv3", music.background_v3_url))
+                urls_to_hash.append(
+                    (music.id, "bgv3", music.background_v3_url, jacket_bh)
+                )
 
         for vocal in music.vocals:
             abn = vocal.assetbundle_name
             long_bh = bundle_info.get(f"long/{abn}", "")
-            stored_long_bh = existing.get(f"_long_bh/{abn}", "")
-            if long_bh and long_bh != stored_long_bh:
-                if vocal.bgm_nosil_url:
-                    urls_to_hash.append((mid_str, f"long/{abn}", vocal.bgm_nosil_url))
-                elif vocal.bgm_url:
-                    urls_to_hash.append((mid_str, f"long/{abn}", vocal.bgm_url))
+            if long_bh and db_bundle_markers.get((music.id, f"long/{abn}")) != long_bh:
+                url = vocal.bgm_nosil_url or vocal.bgm_url
+                if url:
+                    urls_to_hash.append((music.id, f"long/{abn}", url, long_bh))
 
             short_bh = bundle_info.get(f"short/{abn}", "")
-            stored_short_bh = existing.get(f"_short_bh/{abn}", "")
-            if short_bh and short_bh != stored_short_bh:
-                if vocal.preview_nosil_url:
-                    urls_to_hash.append(
-                        (mid_str, f"short/{abn}", vocal.preview_nosil_url)
-                    )
-                elif vocal.preview_url:
-                    urls_to_hash.append((mid_str, f"short/{abn}", vocal.preview_url))
+            if (
+                short_bh
+                and db_bundle_markers.get((music.id, f"short/{abn}")) != short_bh
+            ):
+                url = vocal.preview_nosil_url or vocal.preview_url
+                if url:
+                    urls_to_hash.append((music.id, f"short/{abn}", url, short_bh))
 
     if not urls_to_hash:
         return
@@ -576,41 +613,41 @@ async def _hash_asset_files():
     print(f"[DataWorker] hashing {total_to_hash} asset files...")
     sem = asyncio.Semaphore(50)
     hashed = 0
+    db_inserts: list[tuple[int, str, str, str]] = []
 
     async def _hash_one(
-        session: aiohttp.ClientSession, mid_str: str, suffix: str, url: str
+        session: aiohttp.ClientSession, music_id: int, hash_key: str, url: str, bh: str
     ):
         nonlocal hashed
         async with sem:
             data = await _fetch_bytes(session, url)
         if data:
             sha1 = hashlib.sha1(data).hexdigest()
-            _file_hashes.setdefault(mid_str, {})[suffix] = sha1
+            mid_str = str(music_id)
+            _file_hashes.setdefault(mid_str, {})[hash_key] = sha1
+            db_inserts.append((music_id, hash_key, sha1, bh))
         hashed += 1
 
     BATCH = 100
     async with aiohttp.ClientSession() as session:
         for i in range(0, len(urls_to_hash), BATCH):
             batch = urls_to_hash[i : i + BATCH]
-            await asyncio.gather(*[_hash_one(session, m, s, u) for m, s, u in batch])
+            await asyncio.gather(
+                *[_hash_one(session, mid, k, u, bh) for mid, k, u, bh in batch]
+            )
             print(f"[DataWorker] hashing assets {hashed}/{total_to_hash}")
 
-    # store bundle hashes as markers so we don't re-hash unchanged files
-    for music in merged:
-        mid_str = str(music.id)
-        bundle_info = _bundle_hashes.get(mid_str, {})
-        fh = _file_hashes.get(mid_str, {})
-        jacket_bh = bundle_info.get("jacket", "")
-        if jacket_bh:
-            fh["_jacket_bh"] = jacket_bh
-        for vocal in music.vocals:
-            abn = vocal.assetbundle_name
-            long_bh = bundle_info.get(f"long/{abn}", "")
-            if long_bh:
-                fh[f"_long_bh/{abn}"] = long_bh
-            short_bh = bundle_info.get(f"short/{abn}", "")
-            if short_bh:
-                fh[f"_short_bh/{abn}"] = short_bh
+    if db_inserts:
+        async with _db_pool.acquire() as conn:
+            await conn.executemany(
+                """
+                INSERT INTO file_hashes (music_id, hash_key, file_hash, bundle_hash)
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (music_id, hash_key) DO UPDATE
+                SET file_hash = $3, bundle_hash = $4
+                """,
+                db_inserts,
+            )
 
     print(f"[DataWorker] hashed {hashed} asset files")
 
@@ -654,9 +691,11 @@ async def lifespan(app: FastAPI):
         await conn.execute(CREATE_TABLE_SQL)
         await conn.execute(ADD_CONVERTER_VERSION_SQL)
         await conn.execute(ADD_FILE_HASH_SQL)
+        await conn.execute(CREATE_FILE_HASHES_SQL)
 
     _load_from_disk()
     await _load_chart_info_from_db()
+    await _load_file_hashes_from_db()
 
     async def _initial_update():
         try:
