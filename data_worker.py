@@ -265,8 +265,6 @@ async def _check_and_update_music():
     counts = " ".join(f"{r}={len(new_cache[r])}" for r in regions if new_cache[r])
     print(f"[DataWorker] music updated. {counts} maps={len(_search_map)} keys")
 
-    await _check_and_update_charts()
-
 
 # ---- charts + leveldata ----
 
@@ -358,6 +356,9 @@ async def _check_and_update_charts():
         return hashlib.md5(json.dumps(sorted(bundles.items())).encode()).hexdigest()
 
     from sonolus_converters import __version__ as converter_version
+    from packaging.version import Version
+
+    current_ver = Version(converter_version)
 
     async with _db_pool.acquire() as conn:
         rows = await conn.fetch(
@@ -375,8 +376,10 @@ async def _check_and_update_charts():
     for music_id, remote_hash in bundle_hash_map.items():
         if db_bundle_hashes.get(music_id) != remote_hash:
             changed_music_ids.add(music_id)
-        elif db_converter_versions.get(music_id) != converter_version:
-            changed_music_ids.add(music_id)
+        else:
+            db_ver = db_converter_versions.get(music_id, "")
+            if not db_ver or Version(db_ver) < current_ver:
+                changed_music_ids.add(music_id)
 
     if not changed_music_ids:
         combined_hash = _hash_known(bundle_hash_map)
@@ -569,7 +572,8 @@ async def _hash_asset_files():
     if not urls_to_hash:
         return
 
-    print(f"[DataWorker] hashing {len(urls_to_hash)} asset files...")
+    total_to_hash = len(urls_to_hash)
+    print(f"[DataWorker] hashing {total_to_hash} asset files...")
     sem = asyncio.Semaphore(50)
     hashed = 0
 
@@ -589,6 +593,7 @@ async def _hash_asset_files():
         for i in range(0, len(urls_to_hash), BATCH):
             batch = urls_to_hash[i : i + BATCH]
             await asyncio.gather(*[_hash_one(session, m, s, u) for m, s, u in batch])
+            print(f"[DataWorker] hashing assets {hashed}/{total_to_hash}")
 
     # store bundle hashes as markers so we don't re-hash unchanged files
     for music in merged:
