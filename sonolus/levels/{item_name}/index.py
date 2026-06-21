@@ -41,9 +41,7 @@ async def main(request: SonolusRequest, item_name: str):
         )
 
     music_data = await fetch_music_data(api)
-    musics = get_merged_musics(
-        music_data, request.state.show_spoilers, request.state.localization
-    )
+    musics = get_merged_musics(music_data, True, request.state.localization)
     engines = await request.app.run_blocking(compile_engines_list, source)
 
     if not engines:
