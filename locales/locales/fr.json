@@ -1,6 +1,6 @@
 {
     "item_not_found": "L'élément {item} \"{name}\" n'as pas été trouvé.",
-    "server_description": "Jouez à プロジェクトセカイ カラフルステージ！ feat. 初音ミク sur Sonolus avec le serveur de Sbuga !\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "server_description": "Jouez à プロジェクトセカイ カラフルステージ！ feat. 初音ミク sur Sonolus avec le serveur de Sbuga !\n\nNous mettons à jour beaucoup plus fréquemment, mais s'il manque des données, essayez https://sonolus.sekai.best/\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
     "show_spoiler_charts_desc": "Afficher les charts qui n'ont pas encore été publiés (date de publication future).",
     "unknown_error": "Erreur inconnue!",
     "invalid_page_plural": "La page {page} n'existe pas ! Il y a {max_page} pages.",

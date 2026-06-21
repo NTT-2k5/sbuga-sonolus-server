@@ -1,6 +1,6 @@
 {
     "item_not_found": "找不到 {item} 物件「{name}」。",
-    "server_description": "在Sonolus上使用Sbuga的伺服器遊玩プロジェクトセカイ カラフルステージ！ feat. 初音ミク！\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "server_description": "在Sonolus上使用Sbuga的伺服器遊玩プロジェクトセカイ カラフルステージ！ feat. 初音ミク！\n\n我們更新頻率更高，但如果有缺少的資料，請嘗試 https://sonolus.sekai.best/\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
     "show_spoiler_charts_desc": "顯示尚未發布的譜面（發布日期在未來）。",
     "unknown_error": "未知錯誤！",
     "invalid_page_plural": "第 {page} 頁不存在！共有 {max_page} 頁。",

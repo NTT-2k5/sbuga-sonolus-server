@@ -1,5 +1,5 @@
 {
-    "server_description": "Play HATSUNE MIKU: COLORFUL STAGE! in Sonolus with Sbuga's Sonolus Server!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "server_description": "Play HATSUNE MIKU: COLORFUL STAGE! in Sonolus with Sbuga's Sonolus Server!\n\nWe update a lot more frequently, but if there is missing data, try https://sonolus.sekai.best/\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
     "item_not_found": "{item} item \"{name}\" not found.",
     "items_not_found": "Could not find any {item}.",
     "invalid_page_plural": "Page {page} does not exist! There are {max_page} pages.",

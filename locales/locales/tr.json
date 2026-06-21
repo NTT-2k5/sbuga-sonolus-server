@@ -1,6 +1,6 @@
 {
     "item_not_found": "{item} öğesi \"{name}\" bulunamadı.",
-    "server_description": "Sbuga'nın Sonolus Sunucusu ile プロジェクトセカイ カラフルステージ！ feat. 初音ミク oynayın!\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
+    "server_description": "Sbuga'nın Sonolus Sunucusu ile プロジェクトセカイ カラフルステージ！ feat. 初音ミク oynayın!\n\nÇok daha sık güncelliyoruz, ancak eksik veri varsa https://sonolus.sekai.best/ adresini deneyin.\n\nhttps://discord.gg/Cdjs8c3SRy\nhttps://discord.gg/UntitledCharts\n",
     "show_spoiler_charts_desc": "Henüz yayınlanmamış chartları göster (gelecekteki yayın tarihi).",
     "unknown_error": "Bilinmeyen hata!",
     "invalid_page_plural": "{page} sayfası bulunamadı! {max_page} sayfa var.",
