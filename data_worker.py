@@ -54,6 +54,10 @@ _file_hashes: dict[str, dict[str, str]] = {}  # {music_id_str: {suffix: sha1}}
 _versions: dict = {}
 _CHECK_INTERVAL = 300
 _lock = asyncio.Lock()
+_chart_404s: set[tuple[int, str]] = (
+    set()
+)  # (music_id, difficulty) that 404'd this session
+_hash_404s: set[tuple[int, str]] = set()  # (music_id, hash_key) that 404'd this session
 
 _api_url: str = ""
 _s3_config: dict = {}
@@ -434,7 +438,14 @@ async def _check_and_update_charts():
     for music_id, diff_urls in to_process.items():
         bh = bundle_hash_map.get(music_id, "")
         for difficulty, url in diff_urls.items():
-            all_tasks.append((music_id, difficulty, url, bh))
+            if (music_id, difficulty) not in _chart_404s:
+                all_tasks.append((music_id, difficulty, url, bh))
+
+    if not all_tasks:
+        combined_hash = _hash_known(bundle_hash_map)
+        for r in regions:
+            _versions.setdefault(r, {})["assetinfo_hash"] = combined_hash
+        return
 
     total_charts = len(all_tasks)
     print(
@@ -476,19 +487,7 @@ async def _check_and_update_charts():
 
         if not chart_bytes:
             print(f"[DataWorker] chart 404: {music_id}/{difficulty}")
-            async with _db_pool.acquire() as conn:
-                await conn.execute(
-                    """
-                    INSERT INTO chart_data (music_id, difficulty, combo, duration, bundle_hash, converter_version, file_hash)
-                    VALUES ($1, $2, 0, 0, $3, $4, '')
-                    ON CONFLICT (music_id, difficulty) DO UPDATE
-                    SET bundle_hash = $3, converter_version = $4
-                    """,
-                    music_id,
-                    difficulty,
-                    bh,
-                    converter_version,
-                )
+            _chart_404s.add((music_id, difficulty))
             return
 
         try:
@@ -624,6 +623,7 @@ async def _hash_asset_files():
                 if url:
                     urls_to_hash.append((music.id, f"short/{abn}", url, short_bh))
 
+    urls_to_hash = [u for u in urls_to_hash if (u[0], u[1]) not in _hash_404s]
     if not urls_to_hash:
         return
 
@@ -648,7 +648,7 @@ async def _hash_asset_files():
             hashed += 1
         else:
             print(f"[DataWorker] asset 404: {music_id}/{hash_key}")
-            db_inserts.append((music_id, hash_key, "", bh))
+            _hash_404s.add((music_id, hash_key))
         done += 1
 
     BATCH = 100
