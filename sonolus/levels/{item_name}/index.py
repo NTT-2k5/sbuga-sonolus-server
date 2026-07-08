@@ -288,17 +288,20 @@ async def _handle_custom_level(
 
     chart_hash = hashlib.sha1(converted_chart).hexdigest()
 
-    difficulty = level1.get("musicDifficultyType", "") or "expert"
+    difficulty = level1.get("musicDifficultyType", "")
     play_level = level1.get("playLevel", 0)
     play_count = level1.get("playCount", 0)
     like_count = level1.get("reviewCount", 0)
     fc_rate = level1.get("fullComboRate")
 
+    chart_title = inner.get("title")
+    chart_description = level1.get("description", "")
+
     level = build_level_item(
         music=music,
         vocal=vocal,
         difficulty_name=difficulty,
-        play_level=play_level or 0,
+        play_level=play_level,
         engine=engine,
         source=source,
         localization=localization,
@@ -307,6 +310,8 @@ async def _handle_custom_level(
         spoiler_tag=locale.spoiler,
     )
     level.name = item_name
+    if chart_title:
+        level.title = chart_title
     level.data = SRL(
         hash=chart_hash, url=f"{source}/sonolus/custom_charts/{region}-{chart_id}"
     )
@@ -323,11 +328,9 @@ async def _handle_custom_level(
         lines.append(f"{loc.fc_rate}: {fc_rate:.1f}%")
     if combo_count:
         lines.append(f"#COMBO:#SEPARATOR_COLON: {combo_count:,}")
-
-    chart_title = inner.get("title")
-    if chart_title:
+    if chart_description.strip():
         lines.append("")
-        lines.append(chart_title)
+        lines.append(chart_description)
     description = "\n".join(lines)
 
     sections = []
@@ -341,7 +344,7 @@ async def _handle_custom_level(
             music=music,
             vocal=other_vocal,
             difficulty_name=difficulty,
-            play_level=play_level or 0,
+            play_level=play_level,
             engine=engine,
             source=source,
             localization=localization,

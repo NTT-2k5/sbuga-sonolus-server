@@ -43,11 +43,12 @@ async def build_custom_playlist_item(
     from locales.locale import Locale
 
     loc, _ = Locale.get_messages(localization)
-    title = music.title
 
     tags = []
 
     level1 = metadata.get("userCustomMusicScoreInfoJson") or {}
+    inner = level1.get("userCustomMusicScoreInfoJson") or {}
+    chart_title = inner.get("title")
     difficulty = level1.get("musicDifficultyType", "")
     play_level = level1.get("playLevel", 0)
     like_count = level1.get("reviewCount", 0)
@@ -77,8 +78,8 @@ async def build_custom_playlist_item(
         level = build_level_item(
             music=music,
             vocal=vocal,
-            difficulty_name=difficulty or "expert",
-            play_level=play_level or 0,
+            difficulty_name=difficulty,
+            play_level=play_level,
             engine=engine,
             source=source,
             localization=localization,
@@ -87,6 +88,8 @@ async def build_custom_playlist_item(
             spoiler_tag=spoiler_tag,
         )
         level.name = custom_level_id
+        if chart_title:
+            level.title = chart_title
         level.data = SRL(
             hash=chart_hash, url=f"{source}/sonolus/custom_charts/{region}-{chart_id}"
         )
@@ -97,7 +100,7 @@ async def build_custom_playlist_item(
     return PlaylistItem(
         name=f"sss-custom-{region}-{chart_id}",
         source=source,
-        title=title,
+        title=chart_title,
         subtitle=difficulty_tag or "",
         author=(
             "HATSUNE MIKU: COLORFUL STAGE!"
@@ -141,10 +144,10 @@ def build_custom_playlist_description(
     if combo_count:
         lines.append(f"#COMBO:#SEPARATOR_COLON: {combo_count:,}")
 
-    chart_title = inner.get("title")
-    if chart_title:
+    chart_description = level1.get("description", "")
+    if chart_description.strip():
         lines.append("")
-        lines.append(chart_title)
+        lines.append(chart_description)
     return "\n".join(lines)
 
 
