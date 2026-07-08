@@ -1,6 +1,7 @@
 import json
 import random
 import time
+from datetime import datetime, timezone, timedelta
 
 import aiohttp
 from helpers.api import SbugaAPI
@@ -18,6 +19,16 @@ from helpers.search import load_from_response
 from helpers.data_compilers import compile_backgrounds_list
 from helpers.models.sonolus.item import LevelItem, UseItem, BackgroundItem
 from helpers.models.sonolus.misc import SRL, Tag
+from locales.locale import Locale
+
+_JST = timezone(timedelta(hours=9))
+_EST = timezone(timedelta(hours=-5))
+
+_MV_TAG_MAP: dict[str, str] = {
+    "mv": "tag_3dmv",
+    "mv_2d": "tag_2dmv",
+    "original": "tag_original_mv",
+}
 
 _chart_info_cache: dict[int, dict[str, dict]] = {}
 _bundle_hashes: dict[str, dict[str, str]] = {}
@@ -339,11 +350,58 @@ def _get_all_title_variants(
     return variants
 
 
+def get_mv_tags(music: Music, localization: str) -> list[Tag]:
+    loc, _ = Locale.get_messages(localization)
+    tags: list[Tag] = []
+    for cat in music.categories:
+        attr = _MV_TAG_MAP.get(cat)
+        if attr:
+            tags.append(Tag(title=getattr(loc, attr)))
+    return tags
+
+
+def format_release_line(
+    music: Music,
+    music_data: dict[str, list[Music]],
+    localization: str,
+) -> str | None:
+    now_ms = int(time.time() * 1000)
+    if music.published_at <= now_ms:
+        return None
+
+    en_map = {m.id: m for m in music_data.get("en", [])}
+    jp_map = {m.id: m for m in music_data.get("jp", [])}
+    en_music = en_map.get(music.id)
+    jp_music = jp_map.get(music.id)
+
+    en_ts = en_music.published_at if en_music else None
+    jp_ts = jp_music.published_at if jp_music else None
+
+    loc, _ = Locale.get_messages(localization)
+
+    if jp_ts and en_ts:
+        if jp_ts <= en_ts:
+            ts, tz, tz_label, label = jp_ts, _JST, "JST", loc.release_jp
+        else:
+            ts, tz, tz_label, label = en_ts, _EST, "EST", loc.release_en
+    elif jp_ts:
+        ts, tz, tz_label, label = jp_ts, _JST, "JST", loc.release_jp
+    elif en_ts:
+        ts, tz, tz_label, label = en_ts, _EST, "EST", loc.release_en
+    else:
+        return None
+
+    dt = datetime.fromtimestamp(ts / 1000, tz=tz)
+    date_str = dt.strftime("%Y/%m/%d %H:%M")
+    return f"{label}: {date_str} {tz_label}"
+
+
 def build_level_description(
     music: Music,
     combo: int,
     duration: float,
     music_data: dict[str, list[Music]] | None = None,
+    localization: str = "en",
 ) -> str:
     lines = []
 
@@ -371,6 +429,12 @@ def build_level_description(
         lines.append(f"#LENGTH:#SEPARATOR_COLON: {format_duration(length_sec)}")
     if combo:
         lines.append(f"#COMBO:#SEPARATOR_COLON: {combo:,}")
+
+    if music_data:
+        release_line = format_release_line(music, music_data, localization)
+        if release_line:
+            lines.append("")
+            lines.append(release_line)
 
     variants = _get_all_title_variants(music, music_data)
     if variants:
@@ -464,6 +528,7 @@ def build_level_item(
             ),
             Tag(title=difficulty_name.capitalize()),
             Tag(title=translate_caption(vocal.caption, localization)),
+            *get_mv_tags(music, localization),
         ],
         engine=engine.to_engine_item(),
         useSkin=UseItem(useDefault=True),

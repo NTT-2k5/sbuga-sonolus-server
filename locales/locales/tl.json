@@ -19,5 +19,10 @@
     "spoiler": "Spoiler",
     "data_loading": "Subukan ulit sa ilang segundo, ina-update ang data.",
     "songs_singular": "1 kanta",
-    "songs_plural": "{count} kanta"
+    "songs_plural": "{count} kanta",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "Original na MV",
+    "release_jp": "Paglabas (JP)",
+    "release_en": "Paglabas (EN)"
 }

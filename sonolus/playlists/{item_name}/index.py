@@ -60,7 +60,9 @@ async def main(request: SonolusRequest, item_name: str):
         spoiler_tag=locale.spoiler,
     )
 
-    description = build_playlist_description(music, music_data=music_data)
+    description = build_playlist_description(
+        music, music_data=music_data, localization=localization
+    )
 
     return ServerItemDetails(
         item=playlist,

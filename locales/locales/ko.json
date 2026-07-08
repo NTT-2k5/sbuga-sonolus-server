@@ -19,5 +19,10 @@
     "spoiler": "스포일러",
     "data_loading": "잠시 후 다시 시도해주세요. 데이터를 업데이트 중입니다.",
     "songs_singular": "1곡",
-    "songs_plural": "{count}곡"
+    "songs_plural": "{count}곡",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "오리지널 MV",
+    "release_jp": "출시 (JP)",
+    "release_en": "출시 (EN)"
 }

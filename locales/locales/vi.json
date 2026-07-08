@@ -19,5 +19,10 @@
     "spoiler": "Spoiler",
     "data_loading": "Vui lòng thử lại sau vài giây, đang cập nhật dữ liệu.",
     "songs_singular": "1 bài hát",
-    "songs_plural": "{count} bài hát"
+    "songs_plural": "{count} bài hát",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "MV Gốc",
+    "release_jp": "Phát hành (JP)",
+    "release_en": "Phát hành (EN)"
 }

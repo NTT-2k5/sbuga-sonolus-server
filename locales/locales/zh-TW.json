@@ -19,5 +19,10 @@
     "spoiler": "劇透",
     "data_loading": "請稍後再試，正在更新資料。",
     "songs_singular": "1首歌曲",
-    "songs_plural": "{count}首歌曲"
+    "songs_plural": "{count}首歌曲",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "原創MV",
+    "release_jp": "發佈 (JP)",
+    "release_en": "發佈 (EN)"
 }

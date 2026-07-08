@@ -7,6 +7,8 @@ from helpers.models.sonolus.misc import SRL, Tag
 from helpers.level_builder import (
     build_level_item,
     get_display_title,
+    get_mv_tags,
+    format_release_line,
 )
 
 _COLLAB_PREFIX = "sss-collab-"
@@ -37,6 +39,7 @@ def parse_playlist_id(playlist_id: str) -> int | None:
 def build_playlist_description(
     music: Music,
     music_data: dict[str, list[Music]] | None = None,
+    localization: str = "en",
 ) -> str:
     from helpers.level_builder import _get_all_title_variants
 
@@ -53,6 +56,12 @@ def build_playlist_description(
         lines.append(f"#COMPOSER:#SEPARATOR_COLON:{music.composer}")
     if music.arranger:
         lines.append(f"#ARRANGER:#SEPARATOR_COLON:{music.arranger}")
+
+    if music_data:
+        release_line = format_release_line(music, music_data, localization)
+        if release_line:
+            lines.append("")
+            lines.append(release_line)
 
     variants = _get_all_title_variants(music, music_data)
     if variants:
@@ -87,6 +96,8 @@ async def build_playlist_item(
         if translated not in seen:
             seen.add(translated)
             tags.append(Tag(title=translated))
+
+    tags.extend(get_mv_tags(music, localization))
 
     sorted_diffs = sorted(music.difficulties, key=lambda d: d.play_level, reverse=True)
     levels: list[LevelItem] = []

@@ -60,6 +60,26 @@ class Loc:
         key = "songs_singular" if count == 1 else "songs_plural"
         return self._get(key).format(count=count)
 
+    @property
+    def tag_3dmv(self) -> str:
+        return self._get("tag_3dmv")
+
+    @property
+    def tag_2dmv(self) -> str:
+        return self._get("tag_2dmv")
+
+    @property
+    def tag_original_mv(self) -> str:
+        return self._get("tag_original_mv")
+
+    @property
+    def release_jp(self) -> str:
+        return self._get("release_jp")
+
+    @property
+    def release_en(self) -> str:
+        return self._get("release_en")
+
     def other_section_title(self, vocals: int, difficulties: int) -> str:
         if vocals and difficulties:
             v = "1v" if vocals == 1 else "nv"

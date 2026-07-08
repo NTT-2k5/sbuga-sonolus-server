@@ -19,5 +19,10 @@
     "spoiler": "Spoiler",
     "data_loading": "Riprova tra qualche secondo, aggiornamento dati in corso.",
     "songs_singular": "1 brano",
-    "songs_plural": "{count} brani"
+    "songs_plural": "{count} brani",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "MV Originale",
+    "release_jp": "Uscita (JP)",
+    "release_en": "Uscita (EN)"
 }

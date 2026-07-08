@@ -19,5 +19,10 @@
     "spoiler": "ネタバレ",
     "data_loading": "数秒後にもう一度お試しください。データを更新中です。",
     "songs_singular": "1曲",
-    "songs_plural": "{count}曲"
+    "songs_plural": "{count}曲",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "オリジナルMV",
+    "release_jp": "リリース (JP)",
+    "release_en": "リリース (EN)"
 }

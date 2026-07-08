@@ -95,6 +95,7 @@ async def main(request: SonolusRequest, item_name: str):
         combo=chart_info["combo"],
         duration=chart_info["duration"],
         music_data=music_data,
+        localization=request.state.localization,
     )
 
     sections = []

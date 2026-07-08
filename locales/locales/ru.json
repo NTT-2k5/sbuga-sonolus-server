@@ -19,5 +19,10 @@
     "spoiler": "Спойлер",
     "data_loading": "Повторите через несколько секунд, данные обновляются.",
     "songs_singular": "1 песня",
-    "songs_plural": "{count} песен"
+    "songs_plural": "{count} песен",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "Оригинальный MV",
+    "release_jp": "Релиз (JP)",
+    "release_en": "Релиз (EN)"
 }

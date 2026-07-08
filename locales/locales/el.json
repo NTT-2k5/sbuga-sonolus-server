@@ -19,5 +19,10 @@
     "spoiler": "Spoiler",
     "data_loading": "Δοκιμάστε ξανά σε λίγα δευτερόλεπτα, ενημέρωση δεδομένων.",
     "songs_singular": "1 τραγούδι",
-    "songs_plural": "{count} τραγούδια"
+    "songs_plural": "{count} τραγούδια",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "Πρωτότυπο MV",
+    "release_jp": "Κυκλοφορία (JP)",
+    "release_en": "Κυκλοφορία (EN)"
 }

@@ -19,5 +19,10 @@
     "spoiler": "Spoiler",
     "data_loading": "Silakan coba lagi dalam beberapa detik, memperbarui data.",
     "songs_singular": "1 lagu",
-    "songs_plural": "{count} lagu"
+    "songs_plural": "{count} lagu",
+    "tag_3dmv": "3DMV",
+    "tag_2dmv": "2DMV",
+    "tag_original_mv": "MV Original",
+    "release_jp": "Rilis (JP)",
+    "release_en": "Rilis (EN)"
 }
