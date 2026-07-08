@@ -52,7 +52,7 @@ _bundle_hashes: dict[str, dict[str, str]] = (
 )  # {music_id_str: {jacket, score, long/{abn}, short/{abn}}}
 _file_hashes: dict[str, dict[str, str]] = {}  # {music_id_str: {suffix: sha1}}
 _versions: dict = {}
-_CHECK_INTERVAL = 300
+_CHECK_INTERVAL = 60
 _lock = asyncio.Lock()
 _chart_404s: set[tuple[int, str]] = (
     set()
