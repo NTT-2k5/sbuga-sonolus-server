@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 
 from core import SonolusRequest
 from helpers.data_compilers import compile_engines_list
+import hashlib
+
 from helpers.level_builder import (
     fetch_music_data,
     get_merged_musics,
@@ -284,6 +286,8 @@ async def _handle_custom_level(
     except HTTPException:
         raise
 
+    chart_hash = hashlib.sha1(converted_chart).hexdigest()
+
     difficulty = level1.get("musicDifficultyType", "") or "expert"
     play_level = level1.get("playLevel", 0)
     play_count = level1.get("playCount", 0)
@@ -303,7 +307,9 @@ async def _handle_custom_level(
         spoiler_tag=locale.spoiler,
     )
     level.name = item_name
-    level.data = SRL(url=f"{source}/levels/{item_name}/index.py")
+    level.data = SRL(
+        hash=chart_hash, url=f"{source}/sonolus/custom_charts/{region}-{chart_id}"
+    )
 
     lines = []
     if difficulty and play_level:
@@ -325,6 +331,39 @@ async def _handle_custom_level(
     description = "\n".join(lines)
 
     sections = []
+
+    other_ver_levels = []
+    for other_vocal in music.vocals:
+        if other_vocal.id == vocal_id:
+            continue
+        custom_level_id = f"sss-custom-{region}-{other_vocal.id}-{chart_id}"
+        ov_level = build_level_item(
+            music=music,
+            vocal=other_vocal,
+            difficulty_name=difficulty,
+            play_level=play_level or 0,
+            engine=engine,
+            source=source,
+            localization=localization,
+            music_data=music_data,
+            levelbg="v3",
+            spoiler_tag=locale.spoiler,
+        )
+        ov_level.name = custom_level_id
+        ov_level.data = SRL(
+            hash=chart_hash, url=f"{source}/sonolus/custom_charts/{region}-{chart_id}"
+        )
+        other_ver_levels.append(ov_level)
+
+    if other_ver_levels:
+        sections.append(
+            LevelItemSection(
+                title="#OTHER_VERSIONS",
+                icon="level",
+                items=other_ver_levels,
+            )
+        )
+
     if music.vocals and music.difficulties:
         original_playlist = await build_playlist_item(
             music=music,

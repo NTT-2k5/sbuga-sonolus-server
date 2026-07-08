@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+import hashlib
 
 import aiohttp
 
@@ -68,6 +69,8 @@ async def build_custom_playlist_item(
     if combo_count:
         tags.append(Tag(title=f"#COMBO: {combo_count:,}"))
 
+    chart_hash = hashlib.sha1(converted_chart).hexdigest()
+
     levels = []
     for vocal in music.vocals:
         custom_level_id = f"sss-custom-{region}-{vocal.id}-{chart_id}"
@@ -84,7 +87,9 @@ async def build_custom_playlist_item(
             spoiler_tag=spoiler_tag,
         )
         level.name = custom_level_id
-        level.data = SRL(url=f"{source}/levels/{custom_level_id}/index.py")
+        level.data = SRL(
+            hash=chart_hash, url=f"{source}/sonolus/custom_charts/{region}-{chart_id}"
+        )
         levels.append(level)
 
     cover_url = music.jacket_url or ""
