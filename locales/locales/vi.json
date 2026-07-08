@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "MV Gốc",
     "release_jp": "Phát hành (JP)",
-    "release_en": "Phát hành (EN)"
+    "release_en": "Phát hành (EN)",
+    "play_count": "Lượt chơi",
+    "like_count": "Lượt thích",
+    "fc_rate": "Tỷ lệ FC",
+    "original_song": "Bài hát gốc"
 }

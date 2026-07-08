@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "MV Originale",
     "release_jp": "Uscita (JP)",
-    "release_en": "Uscita (EN)"
+    "release_en": "Uscita (EN)",
+    "play_count": "Partite",
+    "like_count": "Mi piace",
+    "fc_rate": "Tasso FC",
+    "original_song": "Canzone Originale"
 }

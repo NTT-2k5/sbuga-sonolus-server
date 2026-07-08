@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "Original na MV",
     "release_jp": "Paglabas (JP)",
-    "release_en": "Paglabas (EN)"
+    "release_en": "Paglabas (EN)",
+    "play_count": "Bilang ng Laro",
+    "like_count": "Gusto",
+    "fc_rate": "FC Rate",
+    "original_song": "Orihinal na Kanta"
 }

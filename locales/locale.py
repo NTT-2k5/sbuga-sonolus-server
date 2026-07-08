@@ -80,6 +80,22 @@ class Loc:
     def release_en(self) -> str:
         return self._get("release_en")
 
+    @property
+    def play_count(self) -> str:
+        return self._get("play_count")
+
+    @property
+    def like_count(self) -> str:
+        return self._get("like_count")
+
+    @property
+    def fc_rate(self) -> str:
+        return self._get("fc_rate")
+
+    @property
+    def original_song(self) -> str:
+        return self._get("original_song")
+
     def other_section_title(self, vocals: int, difficulties: int) -> str:
         if vocals and difficulties:
             v = "1v" if vocals == 1 else "nv"

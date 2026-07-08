@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "Πρωτότυπο MV",
     "release_jp": "Κυκλοφορία (JP)",
-    "release_en": "Κυκλοφορία (EN)"
+    "release_en": "Κυκλοφορία (EN)",
+    "play_count": "Αριθμός παιχνιδιών",
+    "like_count": "Μου αρέσει",
+    "fc_rate": "Ποσοστό FC",
+    "original_song": "Πρωτότυπο τραγούδι"
 }

@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "MV Original",
     "release_jp": "Rilis (JP)",
-    "release_en": "Rilis (EN)"
+    "release_en": "Rilis (EN)",
+    "play_count": "Jumlah Main",
+    "like_count": "Suka",
+    "fc_rate": "Tingkat FC",
+    "original_song": "Lagu Asli"
 }

@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "MV Original",
     "release_jp": "Sortie (JP)",
-    "release_en": "Sortie (EN)"
+    "release_en": "Sortie (EN)",
+    "play_count": "Nombre de parties",
+    "like_count": "J'aime",
+    "fc_rate": "Taux de FC",
+    "original_song": "Chanson Originale"
 }

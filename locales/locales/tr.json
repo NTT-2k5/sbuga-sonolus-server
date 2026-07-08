@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "Orijinal MV",
     "release_jp": "Yayınlanma (JP)",
-    "release_en": "Yayınlanma (EN)"
+    "release_en": "Yayınlanma (EN)",
+    "play_count": "Oynama Sayısı",
+    "like_count": "Beğeni",
+    "fc_rate": "FC Oranı",
+    "original_song": "Orijinal Şarkı"
 }

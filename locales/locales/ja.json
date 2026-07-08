@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "オリジナルMV",
     "release_jp": "リリース (JP)",
-    "release_en": "リリース (EN)"
+    "release_en": "リリース (EN)",
+    "play_count": "プレイ数",
+    "like_count": "いいね数",
+    "fc_rate": "フルコンボ率",
+    "original_song": "原曲"
 }

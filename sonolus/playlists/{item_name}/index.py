@@ -20,6 +20,7 @@ from helpers.playlist_builder import (
 )
 from helpers.models.sonolus.response import ServerItemDetails
 from helpers.models.sonolus.item import PlaylistItem
+from helpers.models.sonolus.item_section import PlaylistItemSection
 from helpers.models.sonolus.misc import SRL, Tag
 
 router = APIRouter()
@@ -38,15 +39,19 @@ async def build_custom_playlist_item(
     combo_count,
     spoiler_tag,
 ):
+    from locales.locale import Locale
+
+    loc, _ = Locale.get_messages(localization)
     title = music.title
 
     tags = []
 
-    level1 = metadata
+    level1 = metadata.get("userCustomMusicScoreInfoJson") or {}
     difficulty = level1.get("musicDifficultyType", "")
     play_level = level1.get("playLevel", 0)
-    review_count = metadata.get("reviewCount", 0)
-    play_count = metadata.get("playCount", 0)
+    like_count = level1.get("reviewCount", 0)
+    play_count = level1.get("playCount", 0)
+    fc_rate = level1.get("fullComboRate")
 
     difficulty_tag = (
         f"{difficulty.title()} {play_level}" if difficulty and play_level else ""
@@ -54,12 +59,14 @@ async def build_custom_playlist_item(
     if difficulty_tag:
         tags.append(Tag(title=difficulty_tag))
 
-    if review_count:
-        tags.append(Tag(title=f"likes: {review_count}"))
     if play_count:
-        tags.append(Tag(title=f"plays: {play_count}"))
+        tags.append(Tag(title=f"{loc.play_count}: {play_count:,}"))
+    if like_count:
+        tags.append(Tag(title=f"{loc.like_count}: {like_count:,}"))
+    if fc_rate is not None:
+        tags.append(Tag(title=f"{loc.fc_rate}: {fc_rate:.1f}%"))
     if combo_count:
-        tags.append(Tag(title=f"fc: {combo_count}"))
+        tags.append(Tag(title=f"#COMBO: {combo_count:,}"))
 
     levels = []
     for vocal in music.vocals:
@@ -101,9 +108,14 @@ async def build_custom_playlist_item(
 def build_custom_playlist_description(
     music, metadata, combo_count, music_data, localization
 ):
+    from locales.locale import Locale
+
+    loc, _ = Locale.get_messages(localization)
     lines = []
 
-    level1 = metadata
+    level1 = metadata.get("userCustomMusicScoreInfoJson") or {}
+    inner = level1.get("userCustomMusicScoreInfoJson") or {}
+
     difficulty = level1.get("musicDifficultyType", "")
     play_level = level1.get("playLevel", 0)
 
@@ -111,39 +123,23 @@ def build_custom_playlist_description(
         lines.append(f"{difficulty.title()} {play_level}")
         lines.append("")
 
-    review_count = metadata.get("reviewCount", 0)
-    play_count = metadata.get("playCount", 0)
+    play_count = level1.get("playCount", 0)
+    like_count = level1.get("reviewCount", 0)
+    fc_rate = level1.get("fullComboRate")
 
-    if review_count:
-        lines.append(f"#REVIEWS:#SEPARATOR_COLON:{review_count}")
     if play_count:
-        lines.append(f"#PLAYS:#SEPARATOR_COLON:{play_count}")
+        lines.append(f"{loc.play_count}: {play_count:,}")
+    if like_count:
+        lines.append(f"{loc.like_count}: {like_count:,}")
+    if fc_rate is not None:
+        lines.append(f"{loc.fc_rate}: {fc_rate:.1f}%")
     if combo_count:
-        lines.append(f"#FC:#SEPARATOR_COLON:{combo_count}")
+        lines.append(f"#COMBO:#SEPARATOR_COLON: {combo_count:,}")
 
-    inner = metadata.get("userCustomMusicScoreInfoJson") or {}
-    inner_inner = inner.get("userCustomMusicScoreInfoJson") or {}
-    chart_title = inner_inner.get("title")
+    chart_title = inner.get("title")
     if chart_title:
         lines.append("")
         lines.append(chart_title)
-
-    if music:
-        variants = []
-        for source_list in (music_data or {}).values():
-            for m in source_list:
-                if m.id != music.id:
-                    continue
-                for v in [m.title, m.pronunciation, *m.title_variants]:
-                    if v and v not in variants:
-                        variants.append(v)
-        for v in [music.title, music.pronunciation, *music.title_variants]:
-            if v and v not in variants:
-                variants.append(v)
-        if variants:
-            lines.append("")
-            lines.append(" ".join(variants))
-
     return "\n".join(lines)
 
 
@@ -258,11 +254,29 @@ async def main(request: SonolusRequest, item_name: str):
         music, metadata, combo_count, music_data, localization
     )
 
+    sections = []
+    if music.vocals and music.difficulties:
+        original_playlist = await build_playlist_item(
+            music=music,
+            engine=engine,
+            source=source,
+            localization=localization,
+            music_data=music_data,
+            spoiler_tag=locale.spoiler,
+        )
+        sections.append(
+            PlaylistItemSection(
+                title=locale.original_song,
+                icon="playlist",
+                items=[original_playlist],
+            )
+        )
+
     return ServerItemDetails(
         item=playlist,
         description=description,
         actions=[],
         hasCommunity=False,
         leaderboards=[],
-        sections=[],
+        sections=sections,
     )

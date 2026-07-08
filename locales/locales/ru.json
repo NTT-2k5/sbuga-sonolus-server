@@ -24,5 +24,9 @@
     "tag_2dmv": "2DMV",
     "tag_original_mv": "Оригинальный MV",
     "release_jp": "Релиз (JP)",
-    "release_en": "Релиз (EN)"
+    "release_en": "Релиз (EN)",
+    "play_count": "Количество игр",
+    "like_count": "Нравится",
+    "fc_rate": "Процент FC",
+    "original_song": "Оригинальная песня"
 }
