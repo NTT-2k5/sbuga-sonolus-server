@@ -609,8 +609,8 @@ _CUSTOM_CHART_CACHE_MAX = 50
 async def fetch_custom_chart_metadata(chart_id: str, region: str) -> dict:
     session = await _get_session()
     async with session.get(
-        f"{_CUSTOM_CHART_API_URL}/{chart_id}",
-        params={"region": region},
+        f"{_CUSTOM_CHART_API_URL}",
+        params={"chart_id": chart_id, "region": region},
     ) as resp:
         if resp.status == 404:
             raise HTTPException(
@@ -650,7 +650,7 @@ async def get_converted_chart(chart_id: str, region: str) -> tuple[bytes, int]:
         raise
 
     chart_data_url = (
-        f"{_CUSTOM_CHART_API_URL}/{chart_id}?region={region}&chart_data=true"
+        f"{_CUSTOM_CHART_API_URL}?chart_id={chart_id}&region={region}&chart_data=true"
     )
     session = await _get_session()
     async with session.get(chart_data_url) as resp:
