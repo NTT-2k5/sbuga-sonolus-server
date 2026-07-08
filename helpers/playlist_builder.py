@@ -36,6 +36,20 @@ def parse_playlist_id(playlist_id: str) -> int | None:
         return None
 
 
+def parse_playlist_custom_level_id(playlist_id: str) -> tuple[str, str] | None:
+    """
+    region, chart id
+    """
+    if not playlist_id.startswith("sss-custom-"):
+        return None
+    data = playlist_id.removeprefix("sss-custom-")
+    parts = data.split("-", 1)
+    try:
+        return parts[0], parts[1]
+    except ValueError:
+        return None
+
+
 def build_playlist_description(
     music: Music,
     music_data: dict[str, list[Music]] | None = None,

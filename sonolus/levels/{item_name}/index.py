@@ -6,6 +6,7 @@ from helpers.level_builder import (
     fetch_music_data,
     get_merged_musics,
     parse_level_id,
+    parse_custom_level_id,
     build_level_item,
     build_level_description,
     get_chart_info,
@@ -28,6 +29,8 @@ async def main(request: SonolusRequest, item_name: str):
 
     parsed = parse_level_id(item_name)
     if not parsed:
+        custom_parsed = parse_custom_level_id(item_name)
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=locale.not_found,

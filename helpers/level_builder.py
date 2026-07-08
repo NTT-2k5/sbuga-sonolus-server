@@ -1,10 +1,13 @@
 import json
 import random
 import time
+import io
+from collections import OrderedDict
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 
 import aiohttp
+from fastapi import HTTPException, status
 from helpers.api import SbugaAPI
 from helpers.config_loader import get_config as _get_config
 from helpers.models.api.music import (
@@ -40,6 +43,9 @@ _known_version: str = ""
 _VERSION_CHECK_INTERVAL = 5
 _VERSION_CHECK_INTERVAL_NO_DATA = 2
 
+_CUSTOM_CHART_CACHE: "OrderedDict[str, bytes]" = OrderedDict()
+_CUSTOM_CHART_CACHE_MAX = 50
+
 
 def make_level_id(music_id: int, vocal_id: int, difficulty: str) -> str:
     return f"sss-{music_id}-{vocal_id}-{difficulty}"
@@ -51,6 +57,22 @@ def parse_level_id(level_id: str) -> tuple[int, int, str] | None:
         return None
     try:
         return int(parts[1]), int(parts[2]), parts[3]
+    except ValueError:
+        return None
+
+
+def parse_custom_level_id(level_id: str) -> tuple[str, int, str] | None:
+    """
+    example input: sss-custom-jp-1--1nng79d-m1oudf_01j
+
+    region (eg. jp), vocal id, chart id
+    """
+    if not level_id.startswith("sss-custom-"):
+        return None
+    data = level_id.removeprefix("sss-custom-")
+    parts = data.split("-", 2)
+    try:
+        return parts[0], int(parts[1]), parts[2]
     except ValueError:
         return None
 
@@ -577,3 +599,73 @@ def get_same_artist_musics(
     if len(same) > limit:
         same = random.sample(same, limit)
     return same
+
+
+_CUSTOM_CHART_API_URL = "https://api.sbuga.com/api/tools/custom_chart"
+_CUSTOM_CHART_CACHE: "OrderedDict[str, tuple[bytes, int]]" = OrderedDict()
+_CUSTOM_CHART_CACHE_MAX = 50
+
+
+async def fetch_custom_chart_metadata(chart_id: str, region: str) -> dict:
+    session = await _get_session()
+    async with session.get(
+        f"{_CUSTOM_CHART_API_URL}/{chart_id}",
+        params={"region": region},
+    ) as resp:
+        if resp.status == 404:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="custom chart not found",
+            )
+        if resp.status != 200:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="failed to fetch custom chart metadata",
+            )
+        return await resp.json()
+
+
+def _convert_chart_bytes(chart_bytes: bytes) -> tuple[bytes, int]:
+    from sonolus_converters import pjsk
+    from sonolus_converters.LevelData import next_sekai
+
+    score = pjsk.load(chart_bytes)
+    combo_count = score.combo_count
+    buf = io.BytesIO()
+    next_sekai.export(buf, score, as_compressed=True)
+    return buf.getvalue(), combo_count
+
+
+async def get_converted_chart(chart_id: str, region: str) -> tuple[bytes, int]:
+    cache_key = f"{region}:{chart_id}"
+
+    cached = _CUSTOM_CHART_CACHE.get(cache_key)
+    if cached is not None:
+        _CUSTOM_CHART_CACHE.move_to_end(cache_key)
+        return cached
+
+    try:
+        metadata = await fetch_custom_chart_metadata(chart_id, region)
+    except HTTPException:
+        raise
+
+    chart_data_url = (
+        f"{_CUSTOM_CHART_API_URL}/{chart_id}?region={region}&chart_data=true"
+    )
+    session = await _get_session()
+    async with session.get(chart_data_url) as resp:
+        if resp.status != 200:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="failed to download custom chart",
+            )
+        raw_chart = await resp.read()
+
+    converted, combo_count = _convert_chart_bytes(raw_chart)
+
+    _CUSTOM_CHART_CACHE[cache_key] = (converted, combo_count)
+    _CUSTOM_CHART_CACHE.move_to_end(cache_key)
+    while len(_CUSTOM_CHART_CACHE) > _CUSTOM_CHART_CACHE_MAX:
+        _CUSTOM_CHART_CACHE.popitem(last=False)
+
+    return converted, combo_count
