@@ -2,6 +2,7 @@ import json
 import random
 import time
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 
 import aiohttp
 from helpers.api import SbugaAPI
@@ -22,7 +23,7 @@ from helpers.models.sonolus.misc import SRL, Tag
 from locales.locale import Locale
 
 _JST = timezone(timedelta(hours=9))
-_EST = timezone(timedelta(hours=-5))
+_ET = ZoneInfo("America/New_York")
 
 _MV_TAG_MAP: dict[str, str] = {
     "mv": "tag_3dmv",
@@ -383,11 +384,11 @@ def format_release_line(
         if jp_ts <= en_ts:
             ts, tz, tz_label, label = jp_ts, _JST, "JST", loc.release_jp
         else:
-            ts, tz, tz_label, label = en_ts, _EST, "EST", loc.release_en
+            ts, tz, tz_label, label = en_ts, _ET, "EST", loc.release_en
     elif jp_ts:
         ts, tz, tz_label, label = jp_ts, _JST, "JST", loc.release_jp
     elif en_ts:
-        ts, tz, tz_label, label = en_ts, _EST, "EST", loc.release_en
+        ts, tz, tz_label, label = en_ts, _ET, "EST", loc.release_en
     else:
         return None
 
